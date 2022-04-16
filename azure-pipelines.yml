@@ -41,7 +41,7 @@ stages:
         ArtifactName: 'drop'
         publishLocation: 'Container'
         
-- stage: Deploy
+- stage: Deploy to test
 
   jobs:
   - job: deploy_test
@@ -56,8 +56,6 @@ stages:
         artifactName: 'drop'
         downloadPath: '$(System.ArtifactsDirectory)'
 
-    - script: ls -la $(System.ArtifactsDirectory)
-
     - task: AzureStaticWebApp@0
       inputs:
         app_location: 'frontend/wwwroot'
@@ -66,4 +64,4 @@ stages:
         skip_api_build: true
         azure_static_web_apps_api_token: '$(SWA_DEPLOYMENT_TOKEN)'
         deployment_environment: 'test'
-        workingDirectory: $(Pipeline.Workspace)
+        workingDirectory: $(Pipeline.Workspace)/drop
