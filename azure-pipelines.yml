@@ -67,6 +67,8 @@ stages:
         azure_static_web_apps_api_token: '$(SWA_DEPLOYMENT_TOKEN)'
         deployment_environment: 'test'
         workingDirectory: $(System.ArtifactsDirectory)/drop
+    
+    - script: env
 
 - stage: deploy_production
   displayName: Deploy to production
