@@ -63,6 +63,7 @@ stages:
         api_location: 'api'
         skip_app_build: true
         skip_api_build: true
+        verbose: true
         azure_static_web_apps_api_token: '$(SWA_DEPLOYMENT_TOKEN)'
         deployment_environment: 'test'
-        workingDirectory: $(Pipeline.Workspace)/drop
+        workingDirectory: $(System.ArtifactsDirectory)/drop
