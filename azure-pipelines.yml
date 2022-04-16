@@ -44,7 +44,7 @@ stages:
 - stage: Deploy
 
   jobs:
-  - job: deploy-test
+  - job: deploy_test
     displayName: Deploy to test environment
 
     steps:
