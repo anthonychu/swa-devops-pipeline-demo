@@ -9,11 +9,35 @@ trigger:
 pool:
   vmImage: ubuntu-latest
 
-steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
+stages:
 
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+- stage: Build
+
+  jobs:
+  - job: build
+    displayName: Build static web app
+
+    steps:
+    
+    - task: UseDotNet@2
+      displayName: Install .NET
+      inputs:
+        packageType: 'sdk'
+        version: '6.*'
+
+    - script: |
+        dotnet publish -c Release -o "$(Build.ArtifactStagingDirectory)/frontend"
+      displayName: Build Blazor frontend
+      workingDirectory: $(System.DefaultWorkingDirectory)/Client
+
+    - script: |
+        dotnet publish -c Release -o "$(Build.ArtifactStagingDirectory)/api"
+      displayName: Build Azure Functions API
+      workingDirectory: $(System.DefaultWorkingDirectory)/Api
+    
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+        ArtifactName: 'drop'
+        publishLocation: 'Container'
+        
