@@ -42,7 +42,7 @@ stages:
         publishLocation: 'Container'
         
 - stage: deploy_test
-  displayName: Deploy to test environment
+  displayName: Deploy to test
 
   jobs:
   - job: deploy
@@ -67,3 +67,32 @@ stages:
         azure_static_web_apps_api_token: '$(SWA_DEPLOYMENT_TOKEN)'
         deployment_environment: 'test'
         workingDirectory: $(System.ArtifactsDirectory)/drop
+
+- stage: deploy_production
+  displayName: Deploy to production
+
+  jobs:
+  - deployment: deploy
+    displayName: Deploy
+    environment: Production
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+
+          - task: DownloadBuildArtifacts@1
+            inputs:
+              buildType: 'current'
+              downloadType: 'single'
+              artifactName: 'drop'
+              downloadPath: '$(System.ArtifactsDirectory)'
+
+          - task: AzureStaticWebApp@0
+            inputs:
+              app_location: 'frontend/wwwroot'
+              api_location: 'api'
+              skip_app_build: true
+              skip_api_build: true
+              verbose: true
+              azure_static_web_apps_api_token: '$(SWA_DEPLOYMENT_TOKEN)'
+              workingDirectory: $(System.ArtifactsDirectory)/drop
