@@ -41,11 +41,12 @@ stages:
         ArtifactName: 'drop'
         publishLocation: 'Container'
         
-- stage: Deploy to test
+- stage: deploy_test
+  displayName: Deploy to test environment
 
   jobs:
-  - job: deploy_test
-    displayName: Deploy to test environment
+  - job: deploy
+    displayName: Deploy
 
     steps:
 
