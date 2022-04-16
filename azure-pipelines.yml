@@ -23,7 +23,7 @@ stages:
       displayName: Install .NET
       inputs:
         packageType: 'sdk'
-        version: '6.*'
+        version: '6.0.x'
 
     - script: |
         dotnet publish -c Release -o "$(Build.ArtifactStagingDirectory)/frontend"
