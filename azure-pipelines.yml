@@ -31,8 +31,7 @@ stages:
       workingDirectory: $(System.DefaultWorkingDirectory)/PlaywrightTests
 
     - script: |
-        sudo pwsh $(Build.ArtifactStagingDirectory)/tests/playwright.ps1 install-deps
-        sudo pwsh $(Build.ArtifactStagingDirectory)/tests/playwright.ps1 install chromium
+        sudo pwsh $(Build.ArtifactStagingDirectory)/tests/playwright.ps1 install --with-deps chromium
         dotnet test $(Build.ArtifactStagingDirectory)/tests/PlaywrightTests.dll
       displayName: Run Playwright tests
 
@@ -86,10 +85,11 @@ stages:
         version: '6.0.x'
 
     - script: |
-        pwsh $(System.ArtifactsDirectory)/drop/tests/playwright.ps1 install-deps
-        pwsh $(System.ArtifactsDirectory)/drop/tests/playwright.ps1 install chromium
-        dotnet test $(System.ArtifactsDirectory)/drop/tests/PlaywrightTests.dll
+        pwsh ./playwright.ps1 install-deps
+        pwsh ./playwright.ps1 install chromium
+        dotnet test ./PlaywrightTests.dll
       displayName: Run Playwright tests
+      workingDirectory: $(System.ArtifactsDirectory)/drop/tests
 
 - stage: deploy_production
   displayName: Deploy to production
