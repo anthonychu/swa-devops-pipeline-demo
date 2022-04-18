@@ -40,6 +40,12 @@ stages:
       displayName: Build NUnit tests
       workingDirectory: $(System.DefaultWorkingDirectory)/PlaywrightTests
 
+    - script: |
+        sudo pwsh $(Build.ArtifactStagingDirectory)/tests/playwright.ps1 install-deps
+        sudo pwsh $(Build.ArtifactStagingDirectory)/tests/playwright.ps1 install chromium
+        dotnet test $(Build.ArtifactStagingDirectory)/drop/tests/PlaywrightTests.dll
+      displayName: Run Playwright tests
+
     - task: PublishBuildArtifacts@1
       inputs:
         PathtoPublish: '$(Build.ArtifactStagingDirectory)'
