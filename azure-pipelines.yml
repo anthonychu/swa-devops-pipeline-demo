@@ -82,6 +82,7 @@ stages:
         version: '6.0.x'
 
     - script: |
+        chmod -R a+x $(System.ArtifactsDirectory)/drop/test
         sudo --preserve-env=PLAYWRIGHT_BROWSERS_PATH pwsh $(System.ArtifactsDirectory)/drop/tests/playwright.ps1 install --with-deps chromium
         dotnet test $(System.ArtifactsDirectory)/drop/tests/PlaywrightTests.dll
       displayName: Run Playwright tests
