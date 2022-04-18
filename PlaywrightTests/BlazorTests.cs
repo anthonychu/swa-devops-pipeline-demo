@@ -25,7 +25,8 @@ namespace PlaywrightTests
         {
             await using var browser = await Playwright.Chromium.LaunchAsync();
             var page = await browser.NewPageAsync();
-            await page.GotoAsync($"{siteBaseUrl}/", new PageGotoOptions { WaitUntil = WaitUntilState.NetworkIdle });
+            await page.GotoAsync($"{siteBaseUrl}/");
+            await page.Locator("text=Hello, world!").WaitForAsync();
             var title = await page.TitleAsync();
             Assert.AreEqual("Index", title);
         }
