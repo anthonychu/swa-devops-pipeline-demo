@@ -46,46 +46,50 @@ stages:
   displayName: Deploy to staging
 
   jobs:
-  - job: deploy
-    displayName: Deploy
+    - deployment: deploy
+      displayName: Deploy
+      environment: Staging
+      strategy:
+        runOnce:
+          deploy:
+            steps:
 
-    steps:
+            - download: none
+            - checkout: none
 
-    - checkout: none
+            - task: DownloadBuildArtifacts@1
+              displayName: Download artifacts
+              inputs:
+                buildType: current
+                downloadType: single
+                artifactName: drop
+                downloadPath: $(System.ArtifactsDirectory)
 
-    - task: DownloadBuildArtifacts@1
-      displayName: Download artifacts
-      inputs:
-        buildType: current
-        downloadType: single
-        artifactName: drop
-        downloadPath: $(System.ArtifactsDirectory)
+            - task: AzureStaticWebApp@0
+              displayName: Deploy to staging environment
+              inputs:
+                app_location: frontend/wwwroot
+                api_location: api
+                skip_app_build: true
+                skip_api_build: true
+                verbose: true
+                azure_static_web_apps_api_token: $(SWA_DEPLOYMENT_TOKEN)
+                deployment_environment: staging
+                workingDirectory: $(System.ArtifactsDirectory)/drop
 
-    - task: AzureStaticWebApp@0
-      displayName: Deploy to staging environment
-      inputs:
-        app_location: frontend/wwwroot
-        api_location: api
-        skip_app_build: true
-        skip_api_build: true
-        verbose: true
-        azure_static_web_apps_api_token: $(SWA_DEPLOYMENT_TOKEN)
-        deployment_environment: staging
-        workingDirectory: $(System.ArtifactsDirectory)/drop
+            - task: UseDotNet@2
+              displayName: Install .NET SDK
+              inputs:
+                packageType: 'sdk'
+                version: '6.0.x'
 
-    - task: UseDotNet@2
-      displayName: Install .NET SDK
-      inputs:
-        packageType: 'sdk'
-        version: '6.0.x'
-
-    - script: |
-        chmod -R a+x $(System.ArtifactsDirectory)/drop/tests
-        sudo --preserve-env=PLAYWRIGHT_BROWSERS_PATH pwsh $(System.ArtifactsDirectory)/drop/tests/playwright.ps1 install --with-deps chromium
-        dotnet test $(System.ArtifactsDirectory)/drop/tests/PlaywrightTests.dll
-      displayName: Run Playwright tests on staging app
-      env:
-        PLAYWRIGHT_BROWSERS_PATH: $(Build.SourcesDirectory)/browsers
+            - script: |
+                chmod -R a+x $(System.ArtifactsDirectory)/drop/tests
+                sudo --preserve-env=PLAYWRIGHT_BROWSERS_PATH pwsh $(System.ArtifactsDirectory)/drop/tests/playwright.ps1 install --with-deps chromium
+                dotnet test $(System.ArtifactsDirectory)/drop/tests/PlaywrightTests.dll
+              displayName: Run Playwright tests on staging app
+              env:
+                PLAYWRIGHT_BROWSERS_PATH: $(Build.SourcesDirectory)/browsers
 
 - stage: deploy_production
   displayName: Deploy to production
@@ -98,7 +102,7 @@ stages:
       runOnce:
         deploy:
           steps:
-
+          - download: none
           - checkout: none
 
           - task: DownloadBuildArtifacts@1
@@ -119,7 +123,3 @@ stages:
               verbose: true
               azure_static_web_apps_api_token: $(SWA_DEPLOYMENT_TOKEN)
               workingDirectory: $(System.ArtifactsDirectory)/drop
-  
-  - job: test
-    steps:
-      - script: env
