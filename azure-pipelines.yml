@@ -36,7 +36,7 @@ stages:
       workingDirectory: $(System.DefaultWorkingDirectory)/Api
     
     - script: |
-        dotnet publish -c Release -o "$(Build.ArtifactStagingDirectory)/tests"
+        dotnet build -c Release -o "$(Build.ArtifactStagingDirectory)/tests"
       displayName: Build NUnit tests
       workingDirectory: $(System.DefaultWorkingDirectory)/PlaywrightTests
 
@@ -72,14 +72,18 @@ stages:
         azure_static_web_apps_api_token: '$(SWA_DEPLOYMENT_TOKEN)'
         deployment_environment: 'test'
         workingDirectory: $(System.ArtifactsDirectory)/drop
-    
-    - script: env
 
-    - task: VSTest@2
+    - task: UseDotNet@2
+      displayName: Install .NET
       inputs:
-        testSelector: testAssemblies
-        testAssemblyVer2: "**/*Tests.dll"
-        searchFolder: $(System.ArtifactsDirectory)/drop/tests
+        packageType: 'sdk'
+        version: '6.0.x'
+
+    - script: |
+        pwsh $(System.ArtifactsDirectory)/drop/playwright.ps1 install-deps
+        pwsh $(System.ArtifactsDirectory)/drop/playwright.ps1 install chromium
+        dotnet test $(System.ArtifactsDirectory)/drop/PlaywrightTests.dll
+      displayName: Run Playwright tests
 
 - stage: deploy_production
   displayName: Deploy to production
