@@ -17,6 +17,7 @@ namespace PlaywrightTests
             {
                 siteBaseUrl = siteBaseUrlVar;
             }
+            System.Console.WriteLine($"Using siteBaseUrl: {siteBaseUrl}");
         }
 
         [Test]

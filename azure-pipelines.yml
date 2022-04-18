@@ -55,6 +55,8 @@ stages:
 
     steps:
 
+    - checkout: none
+
     - task: DownloadBuildArtifacts@1
       inputs:
         buildType: 'current'
@@ -80,13 +82,6 @@ stages:
         version: '6.0.x'
 
     - script: |
-        pwsh ./playwright.ps1 install-deps
-        pwsh ./playwright.ps1 install chromium
-        dotnet test ./PlaywrightTests.dll
-      displayName: Run Playwright tests
-      workingDirectory: $(System.ArtifactsDirectory)/drop/tests
-
-    - script: |
         sudo --preserve-env=PLAYWRIGHT_BROWSERS_PATH pwsh $(System.ArtifactsDirectory)/drop/tests/playwright.ps1 install --with-deps chromium
         dotnet test $(System.ArtifactsDirectory)/drop/tests/PlaywrightTests.dll
       displayName: Run Playwright tests
@@ -104,6 +99,8 @@ stages:
       runOnce:
         deploy:
           steps:
+
+          - checkout: none
 
           - task: DownloadBuildArtifacts@1
             inputs:
