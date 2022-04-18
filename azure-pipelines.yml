@@ -35,6 +35,11 @@ stages:
       displayName: Build Azure Functions API
       workingDirectory: $(System.DefaultWorkingDirectory)/Api
     
+    - script: |
+        dotnet publish -c Release -o "$(Build.ArtifactStagingDirectory)/tests"
+      displayName: Build NUnit tests
+      workingDirectory: $(System.DefaultWorkingDirectory)/PlaywrightTests
+
     - task: PublishBuildArtifacts@1
       inputs:
         PathtoPublish: '$(Build.ArtifactStagingDirectory)'
@@ -69,6 +74,12 @@ stages:
         workingDirectory: $(System.ArtifactsDirectory)/drop
     
     - script: env
+
+    - task: VSTest@2
+      inputs:
+        testSelector: testAssemblies
+        testAssemblyVer2: "**/*Tests.dll"
+        searchFolder: $(System.ArtifactsDirectory)/drop/tests
 
 - stage: deploy_production
   displayName: Deploy to production
