@@ -25,18 +25,6 @@ stages:
         packageType: 'sdk'
         version: '6.0.x'
         
-    - script: |
-        dotnet build -c Release -o "$(Build.ArtifactStagingDirectory)/tests"
-      displayName: Build Playwright tests
-      workingDirectory: $(System.DefaultWorkingDirectory)/PlaywrightTests
-
-    - script: |
-        sudo --preserve-env=PLAYWRIGHT_BROWSERS_PATH pwsh $(Build.ArtifactStagingDirectory)/tests/playwright.ps1 install --with-deps chromium
-        dotnet test $(Build.ArtifactStagingDirectory)/tests/PlaywrightTests.dll
-      displayName: Run Playwright tests
-      env:
-        PLAYWRIGHT_BROWSERS_PATH: $(Build.ArtifactStagingDirectory)/tests/chromium/
-
     - script: |    
         dotnet publish -c Release -o "$(Build.ArtifactStagingDirectory)/frontend"
       displayName: Build Blazor frontend  
@@ -47,6 +35,11 @@ stages:
       displayName: Build Azure Functions API  
       workingDirectory: $(System.DefaultWorkingDirectory)/Api
       
+    - script: |
+        dotnet build -c Release -o "$(Build.ArtifactStagingDirectory)/tests"
+      displayName: Build Playwright tests
+      workingDirectory: $(System.DefaultWorkingDirectory)/PlaywrightTests
+
     - task: PublishBuildArtifacts@1
       inputs:
         PathtoPublish: '$(Build.ArtifactStagingDirectory)'
@@ -92,6 +85,13 @@ stages:
         dotnet test ./PlaywrightTests.dll
       displayName: Run Playwright tests
       workingDirectory: $(System.ArtifactsDirectory)/drop/tests
+
+    - script: |
+        sudo --preserve-env=PLAYWRIGHT_BROWSERS_PATH pwsh $(System.ArtifactsDirectory)/drop/tests/playwright.ps1 install --with-deps chromium
+        dotnet test $(System.ArtifactsDirectory)/drop/tests/PlaywrightTests.dll
+      displayName: Run Playwright tests
+      env:
+        PLAYWRIGHT_BROWSERS_PATH: $(System.ArtifactsDirectory)/drop/tests/browsers
 
 - stage: deploy_production
   displayName: Deploy to production
