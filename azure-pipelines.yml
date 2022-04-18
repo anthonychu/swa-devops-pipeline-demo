@@ -80,9 +80,9 @@ stages:
         version: '6.0.x'
 
     - script: |
-        pwsh $(System.ArtifactsDirectory)/drop/playwright.ps1 install-deps
-        pwsh $(System.ArtifactsDirectory)/drop/playwright.ps1 install chromium
-        dotnet test $(System.ArtifactsDirectory)/drop/PlaywrightTests.dll
+        pwsh $(System.ArtifactsDirectory)/drop/tests/playwright.ps1 install-deps
+        pwsh $(System.ArtifactsDirectory)/drop/tests/playwright.ps1 install chromium
+        dotnet test $(System.ArtifactsDirectory)/drop/tests/PlaywrightTests.dll
       displayName: Run Playwright tests
 
 - stage: deploy_production
