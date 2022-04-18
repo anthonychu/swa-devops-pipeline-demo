@@ -24,28 +24,28 @@ stages:
       inputs:
         packageType: 'sdk'
         version: '6.0.x'
-
-    - script: |
-        dotnet publish -c Release -o "$(Build.ArtifactStagingDirectory)/frontend"
-      displayName: Build Blazor frontend
-      workingDirectory: $(System.DefaultWorkingDirectory)/Client
-
-    - script: |
-        dotnet publish -c Release -o "$(Build.ArtifactStagingDirectory)/api"
-      displayName: Build Azure Functions API
-      workingDirectory: $(System.DefaultWorkingDirectory)/Api
-    
+        
     - script: |
         dotnet build -c Release -o "$(Build.ArtifactStagingDirectory)/tests"
-      displayName: Build NUnit tests
+      displayName: Build Playwright tests
       workingDirectory: $(System.DefaultWorkingDirectory)/PlaywrightTests
 
     - script: |
         sudo pwsh $(Build.ArtifactStagingDirectory)/tests/playwright.ps1 install-deps
         sudo pwsh $(Build.ArtifactStagingDirectory)/tests/playwright.ps1 install chromium
-        dotnet test $(Build.ArtifactStagingDirectory)/drop/tests/PlaywrightTests.dll
+        dotnet test $(Build.ArtifactStagingDirectory)/tests/PlaywrightTests.dll
       displayName: Run Playwright tests
 
+    - script: |    
+        dotnet publish -c Release -o "$(Build.ArtifactStagingDirectory)/frontend"
+      displayName: Build Blazor frontend  
+      workingDirectory: $(System.DefaultWorkingDirectory)/Client
+
+    - script: |  
+        dotnet publish -c Release -o "$(Build.ArtifactStagingDirectory)/api"
+      displayName: Build Azure Functions API  
+      workingDirectory: $(System.DefaultWorkingDirectory)/Api
+      
     - task: PublishBuildArtifacts@1
       inputs:
         PathtoPublish: '$(Build.ArtifactStagingDirectory)'
