@@ -10,6 +10,7 @@ namespace PlaywrightTests
     public class BlazorTests : PageTest
     {
         private string siteBaseUrl = "http://localhost:4200";
+        private string sitePassword;
         public BlazorTests()
         {
             var siteBaseUrlVar = Environment.GetEnvironmentVariable("AZURESTATICWEBAPP_STATIC_WEB_APP_URL");
@@ -18,6 +19,8 @@ namespace PlaywrightTests
                 siteBaseUrl = siteBaseUrlVar;
             }
             System.Console.WriteLine($"Using siteBaseUrl: {siteBaseUrl}");
+
+            sitePassword = Environment.GetEnvironmentVariable("LOGIN_PASSWORD") ?? "";
         }
 
         [Test]
@@ -25,8 +28,7 @@ namespace PlaywrightTests
         {
             await using var browser = await Playwright.Chromium.LaunchAsync();
             var page = await browser.NewPageAsync();
-            await page.GotoAsync($"{siteBaseUrl}/");
-            await page.Locator("text=Hello, world!").WaitForAsync();
+            await GoToHomePage(page);
             var title = await page.TitleAsync();
             Assert.AreEqual("Index", title);
         }
@@ -36,7 +38,8 @@ namespace PlaywrightTests
         {
             await using var browser = await Playwright.Chromium.LaunchAsync();
             var page = await browser.NewPageAsync();
-            await page.GotoAsync($"{siteBaseUrl}/");
+            await GoToHomePage(page);
+
             await page.ClickAsync("a[href='fetchdata']");
 
             var h1 = await page.QuerySelectorAsync("div#app main h1");
@@ -48,6 +51,27 @@ namespace PlaywrightTests
             await page.WaitForFunctionAsync($"document.querySelectorAll('{rowsSelector}').length");
             var rows = await page.QuerySelectorAllAsync(rowsSelector);
             Assert.AreEqual(5, rows.Count);
+        }
+
+        private async Task GoToHomePage(IPage page)
+        {
+            await page.GotoAsync($"{siteBaseUrl}/");
+            var homePageLocatorTask = page.Locator("text=Hello, world!").WaitForAsync();
+            var passwordPageLocatorTask = page.Locator("text=Password protected").WaitForAsync();
+            var isPasswordPage = (await Task.WhenAny(homePageLocatorTask, passwordPageLocatorTask)) == passwordPageLocatorTask;
+
+            if (isPasswordPage)
+            {
+                System.Console.WriteLine("Found password page, logging in...");
+                var passwordInput = await page.QuerySelectorAsync("input[type=password]");
+                if (passwordInput == null)
+                {
+                    throw new Exception("Could not find password input");
+                }
+                await passwordInput.TypeAsync(sitePassword);
+                await page.ClickAsync("button");
+                await page.Locator("text=Hello, world!").WaitForAsync();
+            }
         }
     }
 }
