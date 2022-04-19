@@ -90,6 +90,7 @@ stages:
               displayName: Run Playwright tests on staging app
               env:
                 PLAYWRIGHT_BROWSERS_PATH: $(Build.SourcesDirectory)/browsers
+                LOGIN_PASSWORD: $(LOGIN_PASSWORD)
             
             - task: PublishTestResults@2
               condition: succeededOrFailed()
