@@ -24,7 +24,7 @@ stages:
         dotnet publish -c Release -o "$(Build.ArtifactStagingDirectory)/frontend"
       displayName: Build Blazor frontend
       workingDirectory: $(System.DefaultWorkingDirectory)/Client
-
+      
     - script: |  
         dotnet publish -c Release -o "$(Build.ArtifactStagingDirectory)/api"
       displayName: Build Azure Functions API
@@ -49,6 +49,8 @@ stages:
     - deployment: deploy
       displayName: Deploy and test
       environment: Staging
+      variables:
+      - group: Azure-Static-Web-Apps-calm-coast-0df39b910-variable-group
       strategy:
         runOnce:
           deploy:
@@ -73,7 +75,7 @@ stages:
                 skip_app_build: true
                 skip_api_build: true
                 verbose: true
-                azure_static_web_apps_api_token: $(SWA_DEPLOYMENT_TOKEN)
+                azure_static_web_apps_api_token: $(AZURE_STATIC_WEB_APPS_API_TOKEN_CALM_COAST_0DF39B910)
                 deployment_environment: staging
                 workingDirectory: $(System.ArtifactsDirectory)/drop
 
@@ -105,6 +107,8 @@ stages:
   - deployment: deploy
     displayName: Deploy
     environment: Production
+    variables:
+    - group: Azure-Static-Web-Apps-calm-coast-0df39b910-variable-group
     strategy:
       runOnce:
         deploy:
@@ -128,5 +132,5 @@ stages:
               skip_app_build: true
               skip_api_build: true
               verbose: true
-              azure_static_web_apps_api_token: $(SWA_DEPLOYMENT_TOKEN)
+              azure_static_web_apps_api_token: $(AZURE_STATIC_WEB_APPS_API_TOKEN_CALM_COAST_0DF39B910)
               workingDirectory: $(System.ArtifactsDirectory)/drop
